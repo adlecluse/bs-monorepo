@@ -1,10 +1,14 @@
 apiVersion: backstage.io/v1alpha1
 kind: API
 metadata:
-  name: historyservice
+  name: history-service
   description: The History Service
   tags:
     - history
     - intocare
 spec:
   type: openapi
+  lifecycle: production
+  owner: meta-knight
+  definition:
+    $text: ./openapi.yaml
