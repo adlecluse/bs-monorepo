@@ -5,10 +5,9 @@ metadata:
   description: The History Service
   tags:
     - history
-    - intocare
 spec:
   type: openapi
   lifecycle: production
-  owner: meta-knight
+  owner: intocare
   definition:
     $text: ./openapi.yaml
