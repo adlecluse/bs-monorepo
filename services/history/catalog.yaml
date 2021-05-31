@@ -6,3 +6,5 @@ metadata:
   tags:
     - history
     - intocare
+spec:
+  type: openapi
