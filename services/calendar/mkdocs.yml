@@ -1,4 +1,4 @@
-site_name: '{component-name}'
+site_name: Calendar Service
 nav:
   - Home: index.md
 plugins:
