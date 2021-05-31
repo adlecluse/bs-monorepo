@@ -1,0 +1,8 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: history service
+  description: The History Service
+  tags:
+    - history
+    - intocare
