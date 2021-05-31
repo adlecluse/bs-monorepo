@@ -1,0 +1,458 @@
+openapi: 3.0.3
+info:
+  title: History v2
+  version: '1.0'
+  description: API that is able to retrieve all history events
+  contact:
+    name: Into.care
+paths:
+  '/{organisation}/searchHistoryEvents':
+    parameters:
+      - $ref: '#/components/parameters/organisation'
+    get:
+      summary: Search History Events
+      tags: []
+      responses:
+        '200':
+          $ref: '#/components/responses/searchHistoryEventsResponse'
+      operationId: search-history-events
+      description: Retrieve a list of history events.
+      parameters:
+        - $ref: '#/components/parameters/after'
+        - $ref: '#/components/parameters/limit'
+components:
+  schemas:
+    User:
+      description: A user is a person that uses the into.care platform and can interact with it.
+      type: object
+      x-examples:
+        example-1:
+          id: 90z00fid1gu5ur2
+          firstName: Bennie
+          name: Koepp
+      properties:
+        id:
+          type: string
+          minLength: 1
+        firstName:
+          type: string
+          minLength: 1
+        name:
+          type: string
+          minLength: 1
+      required:
+        - id
+        - firstName
+        - name
+      title: User
+    Resident:
+      description: A resident is a person that lives at a care center.
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+        firstName:
+          type: string
+          minLength: 1
+        name:
+          type: string
+          minLength: 1
+      required:
+        - id
+        - firstName
+        - name
+      x-examples:
+        example-1:
+          id: tara.dubuque
+          firstName: Tara
+          name: DuBuque
+      title: Resident
+    PathDetail:
+      description: ''
+      type: object
+      x-examples:
+        example-1:
+          id: CARE
+          name:
+            nl: Zorg
+            fr: Soins
+      properties:
+        id:
+          type: string
+          minLength: 1
+        name:
+          $ref: '#/components/schemas/I18n'
+      required:
+        - id
+        - name
+      title: PathDetail
+    I18n:
+      title: I18n
+      x-examples:
+        example-1:
+          nl: Iets in het Nederlands
+          fr: Quelque chose en français
+      description: Represents an object that holds a value in multiple languages.
+      type: object
+      properties:
+        nl:
+          type: string
+        fr:
+          type: string
+    HistoryType:
+      type: string
+      title: HistoryType
+      x-examples:
+        example-1: {}
+      enum:
+        - TASK
+        - OBSERVATION
+        - WOUND_CARE
+        - MEDICAL_PARAMETER
+        - MEDICATION_TASKS
+        - MEDICATION_INCIDENT
+        - MEDICATION_ORDER
+      description: Defines the type the history event is about.
+    HistoryEvent:
+      title: HistoryEvent
+      type: object
+      x-examples:
+        example-1:
+          id: 5vu8dndtk0cu3l7
+          type: TASK
+          metaData:
+            id: coudsk99eg
+          organisation: intocare.dev
+          user:
+            id: 90z00fid1gu5ur2
+            firstName: Bennie
+            name: Koepp
+          resident:
+            id: tara.dubuque
+            firstName: Tara
+            name: DuBuque
+          pathDetails:
+            - id: CARE
+              name:
+                nl: Zorg
+                fr: Soins
+            - id: TASK
+              name:
+                nl: Taak
+                fr: Tache
+            - id: WASS
+              name:
+                nl: Wassen
+                fr: Laver
+          path: CARE/TASK/WASS
+          date: '2019-01-01T12:00:00+00:00'
+          department:
+            id: '1'
+            name:
+              nl: Eerste verdieping
+              fr: Premier etage
+          notes: Sed aut et dolorum assumenda aut alias nesciunt veniam doloribus.
+          result:
+            nl: TODO
+            fr: TODO
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/HistoryType'
+        organisation:
+          type: string
+        metaData:
+          type: object
+          description: Holds extra information that is relevant to this event.
+        user:
+          $ref: '#/components/schemas/User'
+        resident:
+          $ref: '#/components/schemas/Resident'
+        department:
+          $ref: '#/components/schemas/Department'
+        date:
+          $ref: '#/components/schemas/DateRFC3339'
+        results:
+          $ref: '#/components/schemas/I18n'
+        notes:
+          type: string
+        pathDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/PathDetail'
+        path:
+          type: string
+          example: CARE/TASK/WASS
+      required:
+        - id
+        - type
+        - organisation
+        - user
+        - resident
+        - date
+        - pathDetails
+        - path
+    Department:
+      title: Department
+      type: object
+      description: ''
+      properties:
+        id:
+          type: string
+        name:
+          $ref: '#/components/schemas/I18n'
+      required:
+        - id
+        - name
+    DateRFC3339:
+      type: string
+      title: DateRFC3339
+      example: '2019-01-01T12:00:00+00:00'
+      format: date-time
+      pattern: '^([0-9]+)-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])[Tt]([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]|60)(\.[0-9]+)?(([Zz])|([\+|\-]([01][0-9]|2[0-3]):[0-5][0-9]))$'
+  parameters:
+    organisation:
+      name: organisation
+      in: path
+      required: true
+      schema:
+        type: string
+      description: The specific care center organisation
+    after:
+      name: after
+      in: query
+      required: false
+      schema:
+        type: number
+      description: The pointer that tells where to start fetching the results from. This is used for paging purposes.
+    limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: string
+      description: The maximum number of items you want to retrieve.
+  responses:
+    searchHistoryEventsResponse:
+      description: Response when searching for history events
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              items:
+                type: array
+                description: List of all the history items for the current page.
+                items:
+                  $ref: '#/components/schemas/HistoryEvent'
+              paging:
+                type: object
+                properties:
+                  after:
+                    type: number
+                    description: Value used to retrieve the next page of results.
+              total:
+                type: number
+                description: The total number of results.
+            required:
+              - items
+          examples:
+            example-without-paging:
+              value:
+                items:
+                  - id: 5vu8dndtk0cu3l7
+                    type: TASK
+                    metaData:
+                      id: coudsk99eg
+                    organisation: getsearchhistoryevents.test
+                    user:
+                      id: 90z00fid1gu5ur2
+                      firstName: Bennie
+                      name: Koepp
+                    resident:
+                      id: tara.dubuque
+                      firstName: Tara
+                      name: DuBuque
+                    pathDetails:
+                      - id: CARE
+                        name:
+                          nl: Zorg
+                          fr: Soins
+                      - id: TASK
+                        name:
+                          nl: Taak
+                          fr: Tache
+                      - id: WASS
+                        name:
+                          nl: Wassen
+                          fr: Laver
+                    path: CARE/TASK/WASS
+                    date: '2019-01-01T12:00:00+00:00'
+                    department:
+                      id: '1'
+                      name:
+                        nl: Eerste verdieping
+                        fr: Premier etage
+                    notes: Sed aut et dolorum assumenda aut alias nesciunt veniam doloribus.
+                    result:
+                      nl: TODO
+                      fr: TODO
+                  - id: qole4bziwxha0bw
+                    type: TASK
+                    metaData:
+                      id: ox8wr551if
+                    organisation: getsearchhistoryevents.test
+                    user:
+                      id: 1tzrb1ds0fp7q6k
+                      firstName: Cedrick
+                      name: Cremin
+                    resident:
+                      id: emilio.lubowitz
+                      firstName: Emilio
+                      name: Lubowitz
+                    pathDetails:
+                      - id: CARE
+                        name:
+                          nl: Zorg
+                          fr: Soins
+                      - id: TASK
+                        name:
+                          nl: Taak
+                          fr: Tache
+                      - id: WASS
+                        name:
+                          nl: Wassen
+                          fr: Laver
+                    path: CARE/TASK/WASS
+                    date: '2019-01-01T13:00:00+00:00'
+                    department:
+                      id: '1'
+                      name:
+                        nl: Eerste verdieping
+                        fr: Premier etage
+                    notes: Amet dolorem eum dolore rerum iusto tempore blanditiis amet quasi.
+                    result:
+                      nl: TODO
+                      fr: TODO
+                  - id: vipiskteitfacj1
+                    type: TASK
+                    metaData:
+                      id: nhm2gu58zc
+                    organisation: getsearchhistoryevents.test
+                    user:
+                      id: zk8vfw6lvthjhle
+                      firstName: Russel
+                      name: Toy
+                    resident:
+                      id: zackary.satterfield
+                      firstName: Zackary
+                      name: Satterfield
+                    pathDetails:
+                      - id: CARE
+                        name:
+                          nl: Zorg
+                          fr: Soins
+                      - id: TASK
+                        name:
+                          nl: Taak
+                          fr: Tache
+                      - id: WASS
+                        name:
+                          nl: Wassen
+                          fr: Laver
+                    path: CARE/TASK/WASS
+                    date: '2019-01-01T14:00:00+00:00'
+                    department:
+                      id: '1'
+                      name:
+                        nl: Eerste verdieping
+                        fr: Premier etage
+                    notes: Totam autem vero accusantium suscipit qui consequatur aperiam consequatur sit.
+                    result:
+                      nl: TODO
+                      fr: TODO
+                total: 3
+                paging: {}
+            example-with-paging:
+              value:
+                items:
+                  - id: 5vu8dndtk0cu3l7
+                    type: TASK
+                    metaData:
+                      id: coudsk99eg
+                    organisation: getsearchhistoryevents.test
+                    user:
+                      id: 90z00fid1gu5ur2
+                      firstName: Bennie
+                      name: Koepp
+                    resident:
+                      id: tara.dubuque
+                      firstName: Tara
+                      name: DuBuque
+                    pathDetails:
+                      - id: CARE
+                        name:
+                          nl: Zorg
+                          fr: Soins
+                      - id: TASK
+                        name:
+                          nl: Taak
+                          fr: Tache
+                      - id: WASS
+                        name:
+                          nl: Wassen
+                          fr: Laver
+                    path: CARE/TASK/WASS
+                    date: '2019-01-01T12:00:00+00:00'
+                    department:
+                      id: '1'
+                      name:
+                        nl: Eerste verdieping
+                        fr: Premier etage
+                    notes: Sed aut et dolorum assumenda aut alias nesciunt veniam doloribus.
+                    result:
+                      nl: TODO
+                      fr: TODO
+                  - id: qole4bziwxha0bw
+                    type: TASK
+                    metaData:
+                      id: ox8wr551if
+                    organisation: getsearchhistoryevents.test
+                    user:
+                      id: 1tzrb1ds0fp7q6k
+                      firstName: Cedrick
+                      name: Cremin
+                    resident:
+                      id: emilio.lubowitz
+                      firstName: Emilio
+                      name: Lubowitz
+                    pathDetails:
+                      - id: CARE
+                        name:
+                          nl: Zorg
+                          fr: Soins
+                      - id: TASK
+                        name:
+                          nl: Taak
+                          fr: Tache
+                      - id: WASS
+                        name:
+                          nl: Wassen
+                          fr: Laver
+                    path: CARE/TASK/WASS
+                    date: '2019-01-01T13:00:00+00:00'
+                    department:
+                      id: '1'
+                      name:
+                        nl: Eerste verdieping
+                        fr: Premier etage
+                    notes: Amet dolorem eum dolore rerum iusto tempore blanditiis amet quasi.
+                    result:
+                      nl: TODO
+                      fr: TODO
+                total: 3
+                paging:
+                  after: 2
+      headers: {}
